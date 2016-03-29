@@ -1,4 +1,5 @@
 var signature = require('cookie-signature'),
+    Redis = require('ioredis'),
     _ = require('underscore'),
 
     uuid = require('./lib/uuid'),
@@ -12,8 +13,13 @@ module.exports = RedisSession;
  * redis-session缓存中间件
  * @Author   fisher<wangjiang.fly.1989@163.com>
  * @DateTime 2016-03-25T14:15:59+0800
- * @param {Object} opts [description]
- * opts.expires  缓存过期时间，单位秒(s), 默认值30 * 60（半小时）
+ * @param {Object} options [description]
+ * options.expires  缓存过期时间，单位秒(s), 默认值30 * 60（半小时）
+ * options.redisCluster redis cluster对象，若不配置该字段，则redis cluster对象则由options.redisConf配置生成
+ * options.redisConf: {
+ *   redisStore: '115.29.96.33:6479,115.29.96.33:6480,115.29.96.33:6481,115.29.96.33:6482,115.29.96.33:6483,115.29.96.33:6484,115.29.96.33:6485,115.29.96.33:6486,115.29.96.33:6487'
+ * }
+ * 
  */
 function RedisSession (options) {
 
@@ -23,9 +29,11 @@ function RedisSession (options) {
     var expires = opts.expires || 30 * 60,
         secret = opts.secret;
 
+    opts.redisCluster = opts.redisCluster || getRedisClusterObj(opts.redisConf);
+
 
     if (!options.redisCluster) {
-        throw Error('redis3x-session middleware args error, options.redisCluster is need!');
+        throw Error('redis3x-session middleware args error, options.redisCluster is undefined!');
     }
 
     return function _redisSession3x (req, res, next) {
@@ -222,6 +230,44 @@ function encode(obj) {
  * @return {[type]} [description]
  */
 function generateId () {
-    return 'mdwrsid:' + uuid.create();
+    return 'redis3x-session-id:' + uuid.create();
+}
+
+/**
+ * generate redis cluster object
+ * @Author   fisher<wangjiang.fly.1989@163.com>
+ * @DateTime 2016-03-25T14:35:35+0800
+ * @param    {Object}                           conf [description]
+ *    conf.redisStore  String  redis配置: "115.29.96.33:6479,115.29.96.33:6480,115.29.96.33:6481,115.29.96.33:6482,115.29.96.33:6483,115.29.96.33:6484,115.29.96.33:6485,115.29.96.33:6486,115.29.96.33:6487",
+ * @return   {Redis.Cluster}                                [description]
+ */
+function getRedisClusterObj(conf) {
+    var redisOption = [];
+    if ('string' === typeof(conf.redisStore)) {
+        var splits = conf.redisStore.split(',');
+
+        splits.forEach(function (cf) {
+            var hostPort = cf.split(':');
+            redisOption.push({
+                host: hostPort[0].trim(),
+                port: hostPort[1].trim()
+            });
+        });
+    } else {
+        redisOption = conf.store || [];
+    }
+
+    console.log('redis config: ', redisOption);
+
+    var redisCluster = new Redis.Cluster(redisOption);
+
+    // 监听redis事件
+    _.each(['connect', 'ready', 'reconnecting', 'end', 'close', 'error'], function (e) {
+        redisCluster.on(e, function () {
+            console.log('redis status: ' + e);
+        });
+    });
+
+    return redisCluster;
 }
 
