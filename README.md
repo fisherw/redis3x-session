@@ -39,19 +39,19 @@ app.use(redis3xSession({
 ```
 
 
-##使用session存取数据
-###存数据
+#使用session存取数据
+##存数据
 ```javascript
 req.rSession.userid = '124242876';
 req.rSession.user = {name: 'fisher', id: '22222'};
 ```
 
-###取数据
+##取数据
 ```javascript
 var userid = req.rSession.userid;
 ```
 
-###设置客户session过期时间(若不设置，则以中间件配置的expire为过期时间)
+##设置客户session过期时间(若不设置，则以中间件配置的expire为过期时间)
 ```javascript
 req.rSession.expire = 10 * 60;
 ```
