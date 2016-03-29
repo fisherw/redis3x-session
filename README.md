@@ -1,6 +1,7 @@
 # redis3x-session
 基于redis缓存的Express服务端session中间件, 使用它可以在单机或多集群部署服务的条件下，使用session建立与客户端的联系，并为客户端用户存储重要数据，保证各节点session数据一致。
-该中间件使用分布式集群的redis客户端（使用ioredis），数据在某redis节点挂掉后其它redis节点仍能正常服务，并选举出新的主节点，有效保证session数据正常存取。
+
+该中间件使用分布式集群的redis（基于redis3.x版本）客户端（使用ioredis），数据在某redis节点挂掉后其它redis节点仍能正常服务，并选举出新的主节点，有效保证session数据正常存取。
 
 # 示例
 
