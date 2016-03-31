@@ -14,7 +14,7 @@ module.exports = RedisSession;
  * @Author   fisher<wangjiang.fly.1989@163.com>
  * @DateTime 2016-03-25T14:15:59+0800
  * @param {Object} options [description]
- * options.expires  缓存过期时间，单位秒(s), 默认值30 * 60（半小时）
+ * options.expires  缓存过期时间，单位毫秒(ms), 默认值30 * 60 * 1000（半小时）
  * options.redisCluster redis cluster对象，若不配置该字段，则redis cluster对象则由options.redisConf配置生成
  * options.redisConf: {
  *   redisStore: '192.168.1.1:6479,192.168.1.1:6480,192.168.1.1:6481,192.168.1.1:6482,192.168.1.1:6483,192.168.1.1:6484,192.168.1.1:6485,192.168.1.1:6486,192.168.1.1:6487'
@@ -26,7 +26,7 @@ function RedisSession (options) {
     var opts = options || {};
 
     // 默认缓存时间30分钟
-    var expires = opts.expires || 30 * 60,
+    var expires = opts.expires || 30 * 60 * 1000,
         secret = opts.secret;
 
     opts.redisCluster = opts.redisCluster || getRedisClusterObj(opts.redisConf);
