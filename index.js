@@ -26,7 +26,7 @@ function RedisSession (options) {
     var opts = options || {};
 
     // 默认缓存时间30分钟
-    var expires = opts.expires || 30 * 60 * 1000,
+    var expires = opts.expires || 30 * 60,
         secret = opts.secret;
 
     opts.redisCluster = opts.redisCluster || getRedisClusterObj(opts.redisConf);

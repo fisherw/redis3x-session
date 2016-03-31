@@ -52,7 +52,7 @@ req.rSession.user = {name: 'fisher', id: '22222'};
 var userid = req.rSession.userid;
 ```
 
-##设置客户session过期时间(若不设置，则以中间件配置的expire为过期时间，单位ms(毫秒))
+##设置客户session过期时间(若不设置，则以中间件配置的expire为过期时间，单位s(秒))
 ```javascript
 req.rSession.expire = 10 * 60;
 ```
