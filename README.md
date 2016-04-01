@@ -23,21 +23,6 @@ app.use(redis3xSession({
 }));
 ```
 
-##配置项options
-
-###options.expires
-过期时间，单位秒(s), 默认值为30 * 60（半小时）
-
-###options.redisCluster
-redis存储实例，由用户决定使用哪种redis客户端插件，如redis, ioredis。 该选项配置时，options.redisConf配置失效.
-
-###options.redisConf
-内置redisCluster实例创建配置项，通过该选项配置的实例仅支持无需登录验证的redis节点，若需要创建含登录验证的redis,请使用redisCluster创建自定义的redis cluster。目前可选配置有：
-####redisConf.redisStore
-  redis各节点地址及端口配置字符串， 以','分隔，如：'192.168.1.1:6479,192.168.1.1:6480'
-
-
-
 
 ##使用中间件内置分布式集群redis客户端（具体使用请参考ioredis）创建cluster
 ```javascript
@@ -72,6 +57,19 @@ var userid = req.rSession.userid;
 req.rSession.expires = 10 * 60;
 ```
 
+
+##配置项options
+
+###options.expires
+过期时间，单位秒(s), 默认值为30 * 60（半小时）。 也可使用req.expires设置当前连接的客户端session过期时间。
+
+###options.redisCluster
+redis存储实例，由用户决定使用哪种redis客户端插件，如redis, ioredis。 该选项配置时，options.redisConf配置失效.
+
+###options.redisConf
+内置redisCluster实例创建配置项，通过该选项配置的实例仅支持无需登录验证的redis节点，若需要创建含登录验证的redis,请使用redisCluster创建自定义的redis cluster。目前可选配置有：
+   #####options.redisConf.redisStore
+   redis各节点地址及端口配置字符串， 以','分隔，如：'192.168.1.1:6479,192.168.1.1:6480'
 
 
 
