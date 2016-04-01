@@ -1,6 +1,6 @@
 {
   "name": "redis3x-session",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "redis(base on redis 3.x version and support cluster mode) session middleware for express(NodeJs).",
   "homepage": "https://github.com/fisherw/redis3x-session",
   "main": "index.js",

@@ -11,7 +11,8 @@ var express = require('express'),
     app = express(),
     redis3xSession = require('redis3x-session');
 
-// 这里使用redis插件为例(使用默认选项创建实例，具体可参考redis插件)
+// 这里使用基础redis插件为例。(使用默认选项创建实例，具体可参考redis插件)
+// 也可以使用支持多集群的redis客户端插件ioredis创建实例，这里不作举例,请参考ioredis)
 var redis = require("redis"),
     redisCluster = redis.createClient();
 
@@ -21,6 +22,20 @@ app.use(redis3xSession({
     expires: 30 * 60
 }));
 ```
+
+##配置项options
+
+###options.expires
+过期时间，单位秒(s), 默认值为30 * 60（半小时）
+
+###options.redisCluster
+redis存储实例，由用户决定使用哪种redis客户端插件，如redis, ioredis。 该选项配置时，options.redisConf配置失效.
+
+###options.redisConf
+内置redisCluster实例创建配置项，通过该选项配置的实例仅支持无需登录验证的redis节点，若需要创建含登录验证的redis,请使用redisCluster创建自定义的redis cluster。目前可选配置有：
+####redisConf.redisStore
+  redis各节点地址及端口配置字符串， 以','分隔，如：'192.168.1.1:6479,192.168.1.1:6480'
+
 
 
 
@@ -52,9 +67,9 @@ req.rSession.user = {name: 'fisher', id: '22222'};
 var userid = req.rSession.userid;
 ```
 
-##设置客户session过期时间(若不设置，则以中间件配置的expire为过期时间，单位s(秒))
+##设置客户session过期时间(若不设置，则以中间件配置的expires为过期时间，单位s(秒))
 ```javascript
-req.rSession.expire = 10 * 60;
+req.rSession.expires = 10 * 60;
 ```
 
 
