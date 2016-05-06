@@ -38,14 +38,31 @@ function RedisSession (options) {
 
     return function _redisSession3x (req, res, next) {
 
-        // 重写writeHead， 在响应时写cookie及更新redis缓存
+        // 重写writeHead， 在响应时写cookie
         var writeHead = res.writeHead;
         res.writeHead = function () {
             // 支持针对单独session定制过期时间
             // 保存cookie及redis缓存
-            req.rSession.save(res, options.redisCluster, secret, req.rSession.expires || expires);
+            // 更新cookie对象
+            res.cookie(redisSessionKey, signature.sign(req.rSession.sessionId, secret), {
+                //maxAge: 0, //expires * 1000,
+                httpOnly: true
+            });
 
             return writeHead.apply(this, arguments);
+        };
+        
+
+        // 同步方式，依赖redis响应结果然后响应请求结果
+        var _end = res.end;
+        res.end = function() {
+            var args = arguments;
+
+            // 支持针对单独session定制过期时间
+            // 保存cookie及redis缓存
+            req.rSession.save(res, options.redisCluster, secret, req.rSession.expires || expires, function() {
+                return _end.apply(res, args);
+            });
         };
 
         // 由cookie-parser中间件生成，若自己实现，则不需依赖cookie-parser
@@ -168,27 +185,34 @@ RSession.deserialize = function (req, str) {
 };
 
 /**
- * 保存RSession实例
- * 分两步操作：
- * 1.设置RSession实例对应的cookie，作为用户标识
- * 2.保存RSession实例到Redis
+ * 保存RSession实例到Redis
  * @return {[type]} [description]
  */
-RSession.prototype.save = function (res, redisCluster, secret, expires) {
+RSession.prototype.save = function (res, redisCluster, secret, expires, cb) {
     var ctx = this._ctx,
         val = RSession.serialize(this);
 
     var sessionId = this.sessionId;
 
-    // 更新cookie对象
-    res.cookie(redisSessionKey, signature.sign(sessionId, secret), {
-        //maxAge: 0, //expires * 1000,
-        httpOnly: true
-    });
 
+    // console.log('更新cookie: sessionId=', sessionId, ' cookiesignedvalue=', signature.sign(sessionId, secret));
+    // console.log('更新redis: sessionId=', sessionId, ' val=', val);
+
+    // 只在值有变化时更新redis缓存内容
     if (ctx._val != val) {
         // 设置redis缓存
-        redisCluster.set(sessionId, val);
+        redisCluster.set(sessionId, val, function(err, re) {
+            if (err) {
+                throw Error(err);
+            }
+            if (cb) {
+                cb();
+            }
+        });
+    } else {
+        if (cb) {
+            cb();
+        }
     }
 
     // 设置redis缓存时间
