@@ -19,7 +19,7 @@
   "keywords": [
     "redis",
     "redis3",
-    "redis-session"
+    "redis-session",
     "redis cluster",
     "session",
     "cookie",
