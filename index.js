@@ -32,7 +32,7 @@ function RedisSession (options) {
     opts.redisCluster = opts.redisCluster || getRedisClusterObj(opts.redisConf);
 
 
-    if (!options.redisCluster) {
+    if (!opts.redisCluster) {
         throw Error('redis3x-session middleware args error, options.redisCluster is undefined!');
     }
 
@@ -60,7 +60,7 @@ function RedisSession (options) {
 
             // 支持针对单独session定制过期时间
             // 保存cookie及redis缓存
-            req.rSession.save(res, options.redisCluster, secret, req.rSession.expires || expires, function() {
+            req.rSession.save(res, opts.redisCluster, secret, req.rSession.expires || expires, function() {
                 return _end.apply(res, args);
             });
         };
