@@ -1,6 +1,7 @@
 'use strict';
 
 var utils = require('../../lib/utils');
+
 describe('utils', function () {
   describe('.bufferEqual', function () {
     it('should return correctly', function () {
@@ -26,7 +27,8 @@ describe('utils', function () {
       expect(utils.convertBufferToString(new Buffer('123'))).to.eql('123');
       expect(utils.convertBufferToString([new Buffer('abc'), new Buffer('abc')])).to.eql(['abc', 'abc']);
       expect(utils.convertBufferToString([new Buffer('abc'), [[new Buffer('abc')]]])).to.eql(['abc', [['abc']]]);
-      expect(utils.convertBufferToString([new Buffer('abc'), 5, 'b', [[new Buffer('abc'), 4]]])).to.eql(['abc', 5, 'b', [['abc', 4]]]);
+      expect(utils.convertBufferToString([new Buffer('abc'), 5, 'b', [[new Buffer('abc'), 4]]]))
+        .to.eql(['abc', 5, 'b', [['abc', 4]]]);
     });
   });
 
@@ -96,18 +98,6 @@ describe('utils', function () {
     });
   });
 
-  describe('.calcSlot', function () {
-    it('should return correctly', function () {
-      expect(utils.calcSlot('123')).to.eql(5970);
-      expect(utils.calcSlot('ab{c')).to.eql(4619);
-      expect(utils.calcSlot('ab{c}2')).to.eql(7365);
-      expect(utils.calcSlot('ab{{c}2')).to.eql(2150);
-      expect(utils.calcSlot('ab{qq}{c}2')).to.eql(5598);
-      expect(utils.calcSlot('ab}')).to.eql(11817);
-      expect(utils.calcSlot('encoding')).to.eql(3060);
-    });
-  });
-
   describe('.toArg', function () {
     it('should return correctly', function () {
       expect(utils.toArg(null)).to.eql('');
@@ -150,6 +140,26 @@ describe('utils', function () {
       expect(utils.parseURL('redis://127.0.0.1/')).to.eql({
         host: '127.0.0.1'
       });
+    });
+  });
+
+  describe('.sample', function () {
+    it('should return a random value', function () {
+      stub(Math, 'random', function () {
+        return 0;
+      });
+      expect(utils.sample([1, 2, 3])).to.eql(1);
+      expect(utils.sample([1, 2, 3], 1)).to.eql(2);
+      expect(utils.sample([1, 2, 3], 2)).to.eql(3);
+      Math.random.restore();
+
+      stub(Math, 'random', function () {
+        return 0.999999;
+      });
+      expect(utils.sample([1, 2, 3])).to.eql(3);
+      expect(utils.sample([1, 2, 3], 1)).to.eql(3);
+      expect(utils.sample([1, 2, 3], 2)).to.eql(3);
+      Math.random.restore();
     });
   });
 });

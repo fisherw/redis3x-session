@@ -1,6 +1,6 @@
 {
   "name": "redis3x-session",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "redis(base on redis 3.x version and support cluster mode) session middleware for express(NodeJs).",
   "homepage": "https://github.com/fisherw/redis3x-session",
   "main": "index.js",
@@ -12,7 +12,7 @@
     "url": "git+ssh://git@github.com/fisherw/redis3x-session.git"
   },
   "dependencies": {
-    "ioredis": "1.7.5",
+    "ioredis": "2.2.0",
     "cookie-signature": "1.0.6",
     "underscore": "1.8.2"
   },
@@ -21,6 +21,7 @@
     "redis3",
     "redis-session",
     "redis cluster",
+    "cluster",
     "session",
     "cookie",
     "cookie session"

@@ -62,8 +62,8 @@ describe('Command', function () {
       expect(getKeys('evalsha', ['23123', '2', 'foo', 'bar', 'zoo'])).to.eql(['foo', 'bar']);
       expect(getKeys('evalsha', ['23123', 2, 'foo', 'bar', 'zoo'])).to.eql(['foo', 'bar']);
       expect(getKeys('sort', ['key'])).to.eql(['key']);
-      expect(getKeys('sort', ['key', 'BY', 'hash:*->field'])).to.eql(['key', 'hash:*']);
-      expect(getKeys('sort', ['key', 'BY', 'hash:*->field', 'LIMIT', 2, 3, 'GET', 'gk', 'GET', '#', 'Get', 'gh->f*', 'DESC', 'ALPHA', 'STORE', 'store'])).to.eql(['key', 'hash:*', 'gk', 'gh->f', 'store']);
+      expect(getKeys('sort', ['key', 'BY', 'hash:*->field'])).to.eql(['key', 'hash:*->field']);
+      expect(getKeys('sort', ['key', 'BY', 'hash:*->field', 'LIMIT', 2, 3, 'GET', 'gk', 'GET', '#', 'Get', 'gh->f*', 'DESC', 'ALPHA', 'STORE', 'store'])).to.eql(['key', 'hash:*->field', 'gk', 'gh->f*', 'store']);
       expect(getKeys('zunionstore', ['out', 2, 'zset1', 'zset2', 'WEIGHTS', 2, 3])).to.eql(['out', 'zset1', 'zset2']);
       expect(getKeys('zinterstore', ['out', 2, 'zset1', 'zset2', 'WEIGHTS', 2, 3])).to.eql(['out', 'zset1', 'zset2']);
 
@@ -71,6 +71,30 @@ describe('Command', function () {
         var command = new Command(commandName, args);
         return command.getKeys();
       }
+    });
+  });
+
+  describe('#getSlot()', function () {
+    it('should return correctly', function () {
+      expectSlot('123', 5970);
+      expectSlot('ab{c', 4619);
+      expectSlot('ab{c}2', 7365);
+      expectSlot('ab{{c}2', 2150);
+      expectSlot('ab{qq}{c}2', 5598);
+      expectSlot('ab}', 11817);
+      expectSlot('encoding', 3060);
+
+      function expectSlot(key, slot) {
+        expect(new Command('get', [key]).getSlot()).to.eql(slot);
+      }
+    });
+  });
+
+  describe('.checkFlag()', function () {
+    it('should return correct result', function () {
+      expect(Command.checkFlag('VALID_IN_SUBSCRIBER_MODE', 'ping')).to.eql(true);
+      expect(Command.checkFlag('VALID_IN_SUBSCRIBER_MODE', 'get')).to.eql(false);
+      expect(Command.checkFlag('WILL_DISCONNECT', 'quit')).to.eql(true);
     });
   });
 });
