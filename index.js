@@ -225,7 +225,7 @@ RSession.prototype.save = function (res, redisCluster, secret, expires, cb) {
  */
 function RSessionContext(req) {
     this.req = req;
-    this_new = true;
+    this._new = true;
     this._val = undefined;
 }
 
